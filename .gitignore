@@ -1,0 +1,16 @@
+# Never publish: internal photos, department numbers, personal documents
+CCF Myimages/
+pitch.md
+grant_application.md
+grant_budget.csv
+grant_exhibit_prototype.pdf
+make_exhibit.py
+resume/
+
+# Generated output (rerun the scripts to recreate)
+faxes_out*/
+__pycache__/
+*.png
+
+# Real blank hospital forms: public PDFs, but download them yourself (sources in README)
+real_forms/

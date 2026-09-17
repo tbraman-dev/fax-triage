@@ -1,0 +1,19 @@
+{
+  "01A182c3.PDF": {"patient": "TESTPATIENT, JANE", "dob": "04/12/1968", "route": "RADIOLOGY", "priority": "ROUTINE", "imaging_type": "RADIOLOGY", "delivery": "ELECTRONIC", "reports": "N"},
+  "01A182d7.PDF": {"patient": "TESTPATIENT, MARCUS", "dob": "11/03/1975", "route": "RADIOLOGY", "priority": "STAT", "imaging_type": "RADIOLOGY", "delivery": "UNKNOWN", "reports": "Y", "needs_review": "True"},
+  "01A182e1.PDF": {"patient": "TESTPATIENT, ROBERT", "dob": "02/27/1959", "route": "RADIOLOGY", "priority": "ROUTINE", "imaging_type": "RADIOLOGY", "delivery": "MAILED CD", "reports": "N"},
+  "01A182f5.PDF": {"patient": "TESTPATIENT, WILLIAM", "dob": "", "route": "RADIOLOGY", "imaging_type": "RADIOLOGY", "delivery": "UNKNOWN", "needs_review": "True"},
+  "01A18309.PDF": {"route": "LEGAL", "needs_review": "False"},
+  "01A1831d.PDF": {"patient": "TESTPATIENT, NANCY", "dob": "05/19/1990", "route": "RADIOLOGY", "priority": "ROUTINE", "imaging_type": "RADIOLOGY", "delivery": "ELECTRONIC", "reports": "Y"},
+  "01A18331.PDF": {"route": "NOT_IMAGING", "needs_review": "True"},
+  "01A18345.PDF": {"patient": "TESTPATIENT, GRACE", "dob": "03/02/1996", "route": "RADIOLOGY", "priority": "URGENT", "imaging_type": "RADIOLOGY", "delivery": "UNKNOWN", "needs_review": "True"},
+  "01A18359.PDF": {"patient": "TESTPATIENT, HENRY", "dob": "09/14/1961", "route": "AKRON", "imaging_type": "RADIOLOGY"},
+  "01A1836d.PDF": {"patient": "TESTPATIENT, LINDA", "dob": "12/05/1958", "route": "HVTI", "imaging_type": "CARDIAC", "delivery": "ELECTRONIC", "send_to": "SRC-4K9T", "reports": "N"},
+  "01A18381.PDF": {"patient": "TESTPATIENT, GEORGE", "dob": "03/22/1970", "route": "SPLIT_HVTI", "priority": "URGENT", "imaging_type": "RADIOLOGY + CARDIAC", "delivery": "ELECTRONIC", "send_to": "HPMC-7Q2X", "reports": "N"},
+  "01A18395.PDF": {"patient": "TESTPATIENT, SOFIA", "dob": "07/17/1988", "route": "RADIOLOGY", "priority": "ROUTINE", "imaging_type": "RADIOLOGY", "delivery": "ELECTRONIC", "send_to": "willowcreek.imaging@example.com", "reports": "Y"},
+  "01A183a9.PDF": {"patient": "TESTPATIENT, OLIVIA", "dob": "10/02/1977", "route": "RADIOLOGY", "imaging_type": "RADIOLOGY", "delivery": "ELECTRONIC", "send_to": "brookfield.spine@example.com", "reports": "Y"},
+  "01A183bd.PDF": {"patient": "TESTPATIENT, KEVIN", "dob": "01/19/1983", "route": "RADIOLOGY", "imaging_type": "RADIOLOGY", "delivery": "UNKNOWN", "needs_review": "True"},
+  "01A183d1.PDF": {"patient": "TESTPATIENT, MARIA", "dob": "05/05/1949", "route": "RADIOLOGY", "imaging_type": "BOTH", "delivery": "MAILED CD", "cd_copies": "2", "reports": "Y"},
+  "01A183e5.PDF": {"patient": "TESTPATIENT, DANIEL", "dob": "08/30/1965", "route": "RADIOLOGY", "imaging_type": "RADIOLOGY", "delivery": "ELECTRONIC", "send_to": "HSS Radiology", "reports": "Y"},
+  "01A183f9.PDF": {"patient": "TESTPATIENT, AMARA", "dob": "11/11/1991", "route": "RADIOLOGY", "priority": "STAT", "imaging_type": "RADIOLOGY", "delivery": "MAILED CD", "cd_copies": "1"}
+}
