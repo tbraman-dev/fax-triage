@@ -1,0 +1,386 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fax Triage Promo</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--bg:#07080B;--ink:#F4F5F0;--mute:#7C818C;--line:#1C1F26;--lime:#D4FF3A;--red:#FF3B30;--amber:#FFB020;--cyan:#3AD7FF;--violet:#A78BFA}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'Inter Tight',sans-serif}
+#stage{position:absolute;inset:0;overflow:hidden}
+.scene{position:absolute;inset:0;display:none}
+.mono{font-family:'JetBrains Mono',monospace}
+.grid{position:absolute;inset:-100px;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:80px 80px;opacity:.55}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.75) 100%);pointer-events:none}
+.grain{position:absolute;inset:0;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>")}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.huge{font-weight:900;letter-spacing:-.05em;line-height:.85}
+.thumb{position:absolute;background:#fff;box-shadow:0 20px 50px rgba(0,0,0,.6);border-radius:3px;overflow:hidden}
+.thumb img{width:100%;height:100%;display:block}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:22px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.cap{position:absolute;left:120px;top:70px}
+.cap h2{font-size:64px;font-weight:900;letter-spacing:-.035em;line-height:1}
+.cap h2 em{font-style:normal;color:var(--lime)}
+/* scan scene */
+#faxwrap{position:absolute;left:150px;top:190px;width:640px;height:828px;transform-origin:50% 50%}
+#faxwrap .paper{position:absolute;inset:0;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08)}
+#faxwrap img{width:100%;height:100%;display:block}
+#beam{position:absolute;left:-30px;right:-30px;height:4px;background:var(--lime);box-shadow:0 0 30px 8px rgba(212,255,58,.55),0 0 90px 20px rgba(212,255,58,.25)}
+#beamtint{position:absolute;left:0;right:0;top:0;background:linear-gradient(180deg,rgba(212,255,58,0),rgba(212,255,58,.14));mix-blend-mode:multiply}
+.hb{position:absolute;border:3px solid var(--lime);border-radius:4px;background:rgba(212,255,58,.12)}
+.hb.red{border-color:var(--red);background:rgba(255,59,48,.12)}
+.hb.amber{border-color:var(--amber);background:rgba(255,176,32,.12)}
+#card{position:absolute;left:960px;top:190px;width:840px;background:#0E1015;border:1px solid #232733;border-radius:18px;padding:34px 40px;box-shadow:0 40px 120px rgba(0,0,0,.5)}
+#card .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.row{display:grid;grid-template-columns:170px 1fr;align-items:center;padding:17px 0;border-top:1px solid #1D212B}
+.row .k{font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.14em;color:var(--mute)}
+.row .v{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;white-space:nowrap}
+.chip{display:inline-block;padding:4px 14px;border-radius:8px;font-weight:700}
+.tag{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--lime);border:1px solid rgba(212,255,58,.4);padding:3px 10px;border-radius:99px;margin-left:16px;vertical-align:middle;font-weight:500}
+#stamp{position:absolute;right:-26px;bottom:-54px;border:6px solid var(--amber);color:var(--amber);font-weight:900;font-size:64px;letter-spacing:.02em;padding:6px 22px;border-radius:10px;transform-origin:center;background:rgba(7,8,11,.7)}
+#fname{position:absolute;left:960px;top:880px;width:840px;font-family:'JetBrains Mono',monospace}
+#fname .old{font-size:24px;color:var(--mute)}
+#fname .new{font-size:22px;color:var(--lime);margin-top:12px;white-space:nowrap;font-weight:700}
+svg.links{position:absolute;inset:0;pointer-events:none}
+/* routing */
+.lane{position:absolute;left:880px;width:920px;height:112px;border:1px solid #232733;border-radius:16px;background:#0E1015;display:flex;align-items:center;padding:0 30px;overflow:hidden}
+.lane .nm{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;width:270px}
+.lane .ds{font-size:24px;color:var(--mute);flex:1;font-weight:500}
+.lane .ct{font-weight:900;font-size:64px;letter-spacing:-.04em;width:110px;text-align:right}
+.lane .bar{position:absolute;left:0;top:0;bottom:0;width:6px}
+.lane .glow{position:absolute;inset:0;opacity:0}
+/* worklist */
+table{border-collapse:collapse;font-family:'JetBrains Mono',monospace}
+#wl{position:absolute;left:120px;top:250px;width:1680px}
+#wl th{font-size:16px;letter-spacing:.14em;color:var(--mute);text-align:left;padding:0 18px 12px;font-weight:500;border-bottom:1px solid #2A2F3B}
+#wl td{font-size:19px;padding:0 18px;height:40px;white-space:nowrap;border-bottom:1px solid #151820}
+#wl tr.r{transform-origin:left center}
+.pill{display:inline-block;padding:2px 10px;border-radius:6px;font-size:16px;font-weight:700}
+.colhl{position:absolute;border:3px solid var(--lime);border-radius:10px;box-shadow:0 0 40px rgba(212,255,58,.25)}
+.callout{position:absolute;font-weight:900;font-size:40px;letter-spacing:-.02em;padding:14px 24px;border-radius:12px;color:#07080B;white-space:nowrap}
+/* stats */
+.stat{position:absolute;top:300px;width:520px}
+.stat .n{font-weight:900;font-size:230px;letter-spacing:-.06em;line-height:.9}
+.stat .l{font-size:34px;font-weight:500;color:#C9CCD3;margin-top:22px;line-height:1.2;max-width:470px}
+.stat .rule{height:6px;width:100%;margin-bottom:34px}
+/* logo */
+.logo{display:flex;align-items:center;gap:40px}
+.mark{position:relative;width:150px;height:190px;background:var(--ink);border-radius:10px;clip-path:polygon(0 0,72% 0,100% 22%,100% 100%,0 100%)}
+.mark .l1,.mark .l2,.mark .l3{position:absolute;left:22px;height:12px;background:#C5C8CF;border-radius:3px}
+.mark .scan{position:absolute;left:-10px;right:-10px;height:10px;background:var(--lime);box-shadow:0 0 30px var(--lime)}
+.word{font-weight:900;letter-spacing:-.055em;line-height:.82}
+</style></head>
+<body><div id="stage">
+  <div class="grid" id="bggrid"></div>
+
+  <!-- A: cold open -->
+  <div class="scene" id="A">
+    <div id="Athumbs"></div>
+    <div class="center" id="Abg"></div>
+    <div class="center"><div id="Aword" class="huge"></div><div id="Asub" class="eyebrow" style="margin-top:40px;font-size:30px;color:var(--ink)"></div></div>
+  </div>
+
+  <!-- B: problem -->
+  <div class="scene" id="B">
+    <div id="Bpile"></div>
+    <div class="center"><div id="Bline" style="font-size:118px;font-weight:900;letter-spacing:-.045em;text-align:center;line-height:1"></div></div>
+    <div class="center" id="Bnot" style="font-size:210px;font-weight:900;letter-spacing:-.055em"></div>
+  </div>
+
+  <!-- C: title -->
+  <div class="scene" id="C">
+    <div class="center">
+      <div class="logo" id="Clogo">
+        <div class="mark" id="Cmark"><div class="l1" style="top:60px;width:80px"></div><div class="l2" style="top:92px;width:100px"></div><div class="l3" style="top:124px;width:70px"></div><div class="scan" id="Cscan"></div></div>
+        <div><div class="word" style="font-size:190px;overflow:hidden"><span id="Cfax" style="display:inline-block">FAX</span></div>
+             <div class="word" style="font-size:190px;overflow:hidden;color:var(--lime)"><span id="Ctri" style="display:inline-block">TRIAGE</span></div></div>
+      </div>
+      <div id="Ctag" style="display:flex;gap:34px;margin-top:70px;font-size:44px;font-weight:700;letter-spacing:-.01em"></div>
+    </div>
+  </div>
+
+  <!-- D: scan -->
+  <div class="scene" id="D">
+    <div class="cap" id="Dcap"><div class="eyebrow">01 · Read</div><h2 style="margin-top:14px">Handwriting in. <em>Fields out.</em></h2></div>
+    <div id="faxwrap"><div class="paper"><img src="img/01A182d7.png"><div id="beamtint"></div><div id="hbs"></div></div><div id="beam"></div></div>
+    <svg class="links" id="links" width="1920" height="1080"></svg>
+    <div id="card">
+      <div class="hd"><span class="eyebrow" style="color:var(--ink)">01A182d7.PDF</span><span class="eyebrow" id="Dstatus" style="color:var(--lime)">● extracting</span></div>
+      <div id="rows"></div>
+      <div id="stamp">NEEDS REVIEW</div>
+    </div>
+    <div id="fname"><div class="eyebrow" style="margin-bottom:14px">renamed</div><div class="old" id="fold">01A182d7.PDF</div><div class="new" id="fnew"></div></div>
+  </div>
+
+  <!-- E: routing -->
+  <div class="scene" id="E">
+    <div class="cap" id="Ecap"><div class="eyebrow">02 · Route</div><h2 style="margin-top:14px">Rules decide. <em>In plain Python.</em></h2><div style="font-size:30px;color:var(--mute);margin-top:18px;font-weight:500">Not in the model. Change a rule, rerun, zero model calls.</div></div>
+    <div id="lanes"></div>
+    <div id="stack"></div>
+    <div id="fly"></div>
+  </div>
+
+  <!-- F: worklist -->
+  <div class="scene" id="F">
+    <div class="cap" id="Fcap"><div class="eyebrow">03 · Review</div><h2 style="margin-top:14px"><span class="mono" style="font-size:58px">worklist.csv</span> <em>One row per fax.</em></h2></div>
+    <table id="wl"><thead><tr><th>EPIC_SEARCH</th><th>ROUTE</th><th>PRIORITY</th><th>DELIVERY</th><th>SEND_TO</th><th>REPORTS</th><th>REVIEW</th></tr></thead><tbody id="wlb"></tbody></table>
+    <div class="colhl" id="hl1"></div><div class="colhl" id="hl2" style="border-color:var(--amber);box-shadow:0 0 40px rgba(255,176,32,.25)"></div>
+    <div class="callout" id="co1" style="background:var(--lime)">Paste into Epic → MRN</div>
+    <div class="callout" id="co2" style="background:var(--amber)">Only these need a human look</div>
+  </div>
+
+  <!-- G: stats -->
+  <div class="scene" id="G">
+    <div class="stat" id="s1" style="left:120px"><div class="rule" style="background:var(--lime)"></div><div class="n" id="s1n">~15s</div><div class="l">per fax, read to worklist.</div></div>
+    <div class="stat" id="s2" style="left:700px"><div class="rule" style="background:var(--cyan)"></div><div class="n" id="s2n">0/15</div><div class="l">handwritten birthdates misread in testing.</div></div>
+    <div class="stat" id="s3" style="left:1280px"><div class="rule" style="background:var(--amber)"></div><div class="n" id="s3n">0</div><div class="l">model calls to re-run every routing rule.</div></div>
+  </div>
+
+  <!-- H: outro -->
+  <div class="scene" id="H">
+    <div class="center" id="Hlines" style="font-weight:900;letter-spacing:-.05em;font-size:150px;line-height:1.02;text-align:center">
+      <div id="H1">Stop reading faxes.</div><div id="H2" style="color:var(--lime)">Start checking them.</div>
+    </div>
+    <div class="center" id="Hlogo">
+      <div class="logo" style="gap:30px">
+        <div class="mark" style="width:96px;height:122px"><div class="l1" style="top:38px;width:50px;height:8px;left:14px"></div><div class="l2" style="top:58px;width:62px;height:8px;left:14px"></div><div class="l3" style="top:78px;width:44px;height:8px;left:14px"></div><div class="scan" id="Hscan" style="height:7px"></div></div>
+        <div class="word" style="font-size:120px">FAX <span style="color:var(--lime)">TRIAGE</span></div>
+      </div>
+      <div style="font-size:36px;margin-top:40px;font-weight:600;color:#C9CCD3">Read · Route · Rename · Review</div>
+      <div class="mono" style="font-size:18px;margin-top:70px;color:var(--mute);letter-spacing:.08em">DEMO · SYNTHETIC FAXES ONLY · NO REAL PATIENT DATA</div>
+    </div>
+  </div>
+
+  <div class="vig"></div><div class="grain"></div><div class="flash" id="flash"></div>
+</div>
+<script>
+const FAXES=["01A182c3","01A182d7","01A182e1","01A182f5","01A18309","01A1831d","01A18331","01A18345","01A18359","01A1836d","01A18381","01A18395","01A183a9","01A183bd","01A183d1","01A183e5","01A183f9"];
+const EXP={"01A182c3":{"patient":"TESTPATIENT, JANE","dob":"04/12/1968","route":"RADIOLOGY","priority":"ROUTINE","delivery":"ELECTRONIC","send_to":"HPMC-7Q2X","reports":"N"},
+"01A182d7":{"patient":"TESTPATIENT, MARCUS","dob":"11/03/1975","route":"RADIOLOGY","priority":"STAT","delivery":"UNKNOWN","reports":"Y","review":1},
+"01A182e1":{"patient":"TESTPATIENT, ROBERT","dob":"02/27/1959","route":"RADIOLOGY","priority":"ROUTINE","delivery":"MAILED CD","reports":"N"},
+"01A182f5":{"patient":"TESTPATIENT, WILLIAM","dob":"","route":"RADIOLOGY","delivery":"UNKNOWN","review":1},
+"01A18309":{"route":"LEGAL"},
+"01A1831d":{"patient":"TESTPATIENT, NANCY","dob":"05/19/1990","route":"RADIOLOGY","priority":"ROUTINE","delivery":"ELECTRONIC","send_to":"Lakeshore Ortho","reports":"Y"},
+"01A18331":{"route":"NOT_IMAGING","review":1},
+"01A18345":{"patient":"TESTPATIENT, GRACE","dob":"03/02/1996","route":"RADIOLOGY","priority":"URGENT","delivery":"UNKNOWN","review":1},
+"01A18359":{"patient":"TESTPATIENT, HENRY","dob":"09/14/1961","route":"AKRON"},
+"01A1836d":{"patient":"TESTPATIENT, LINDA","dob":"12/05/1958","route":"HVTI","delivery":"ELECTRONIC","send_to":"SRC-4K9T","reports":"N"},
+"01A18381":{"patient":"TESTPATIENT, GEORGE","dob":"03/22/1970","route":"SPLIT_HVTI","priority":"URGENT","delivery":"ELECTRONIC","send_to":"HPMC-7Q2X","reports":"N"},
+"01A18395":{"patient":"TESTPATIENT, SOFIA","dob":"07/17/1988","route":"RADIOLOGY","priority":"ROUTINE","delivery":"ELECTRONIC","send_to":"willowcreek.imaging@…","reports":"Y"},
+"01A183a9":{"patient":"TESTPATIENT, OLIVIA","dob":"10/02/1977","route":"RADIOLOGY","delivery":"ELECTRONIC","send_to":"brookfield.spine@…","reports":"Y"},
+"01A183bd":{"patient":"TESTPATIENT, KEVIN","dob":"01/19/1983","route":"RADIOLOGY","delivery":"UNKNOWN","review":1},
+"01A183d1":{"patient":"TESTPATIENT, MARIA","dob":"05/05/1949","route":"RADIOLOGY","delivery":"MAILED CD","send_to":"2 CDs","reports":"Y"},
+"01A183e5":{"patient":"TESTPATIENT, DANIEL","dob":"08/30/1965","route":"RADIOLOGY","delivery":"ELECTRONIC","send_to":"HSS Radiology","reports":"Y"},
+"01A183f9":{"patient":"TESTPATIENT, AMARA","dob":"11/11/1991","route":"RADIOLOGY","priority":"STAT","delivery":"MAILED CD","send_to":"1 CD"}};
+const ROUTEC={RADIOLOGY:'#D4FF3A',LEGAL:'#A78BFA',AKRON:'#3AD7FF',HVTI:'#FF5C8A',SPLIT_HVTI:'#FF8A3D',NOT_IMAGING:'#7C818C'};
+
+// ---------- helpers ----------
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const P=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,4);
+const eo5=x=>1-Math.pow(1-x,5);
+const ei=x=>x*x*x;
+const eio=x=>x<.5?8*x**4:1-8*(1-x)**4;
+const back=x=>{const c=2.2;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const lerp=(a,b,x)=>a+(b-a)*x;
+const $=id=>document.getElementById(id);
+function mk(tag,cls,parent,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;(parent||document.body).appendChild(e);return e}
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function show(id,on){$(id).style.display=on?'block':'none'}
+function type(el,full,x){el.textContent=full.slice(0,Math.round(full.length*clamp(x)))}
+
+// ---------- build A ----------
+const r1=rng(7);
+const Athumbs=[];
+for(let i=0;i<14;i++){const e=mk('div','thumb',$('Athumbs'),`<img src="img/${FAXES[i%17]}.png">`);const w=180+r1()*90;e.style.width=w+'px';e.style.height=w*792/612+'px';Athumbs.push({e,x:r1()*1920-100,y:r1()*1300-250,r:(r1()-.5)*40,v:40+r1()*80,d:r1()});}
+const Awords=[
+ {t:0.0,txt:'17',sub:'faxes in the queue',size:520,col:'var(--ink)',bg:null},
+ {t:1.0,txt:'HANDWRITTEN.',size:230,col:'var(--ink)',bg:null},
+ {t:1.5,txt:'STAT.',size:380,col:'#07080B',bg:'var(--red)'},
+ {t:2.0,txt:'URGENT.',size:330,col:'#07080B',bg:'var(--amber)'},
+ {t:2.5,txt:'UNREAD.',size:330,col:'var(--ink)',bg:null},
+];
+
+// ---------- build B ----------
+const r2=rng(11);const Bpile=[];
+for(let i=0;i<17;i++){const e=mk('div','thumb',$('Bpile'),`<img src="img/${FAXES[i]}.png">`);e.style.width='260px';e.style.height=260*792/612+'px';Bpile.push({e,x:960-130+(r2()-.5)*1300,y:540-168+(r2()-.5)*560,r:(r2()-.5)*30});}
+const Bwords=['Someone','reads','every','single','one.'];
+$('Bline').innerHTML=Bwords.map((w,i)=>`<span id="bw${i}" style="display:inline-block;margin:0 .12em">${w}</span>`).join('');
+
+// ---------- build C ----------
+['Read.','Route.','Rename.','Review.'].forEach((w,i)=>mk('span',null,$('Ctag'),w).id='ct'+i);
+
+// ---------- build D ----------
+const FW=640,FH=828;
+const BOXES=[ // fractions of the page
+ {k:'PRIORITY',v:'STAT',b:[.02,.058,.23,.09],c:'red',t:12.0,chip:'var(--red)'},
+ {k:'FACILITY',v:'Riverbend Surgical Ctr',b:[.02,.09,.41,.119],c:'',t:12.45},
+ {k:'PATIENT',v:'TESTPATIENT, MARCUS',b:[.02,.176,.50,.21],c:'',t:12.9},
+ {k:'DOB',v:'11/03/1975',b:[.02,.209,.30,.248],c:'',t:13.35,tag:'read digit by digit'},
+ {k:'EXAM',v:'MRI Brain w/ & w/o',b:[.02,.283,.64,.32],c:'',t:13.8},
+ {k:'DELIVERY',v:'UNKNOWN',b:[.02,.395,.985,.50],c:'amber',t:14.25,chip:'var(--amber)',tag:'no destination given'},
+];
+BOXES.forEach((B,i)=>{
+  const h=mk('div','hb '+B.c,$('hbs'));const[x0,y0,x1,y1]=B.b;
+  Object.assign(h.style,{left:x0*FW-6+'px',top:y0*FH-4+'px',width:(x1-x0)*FW+12+'px',height:(y1-y0)*FH+8+'px'});B.h=h;
+  const r=mk('div','row',$('rows'));mk('div','k',r,B.k);const v=mk('div','v',r);
+  const val=mk('span',B.chip?'chip':null,v);if(B.chip){val.style.background=B.chip;val.style.color='#07080B'}
+  B.val=val;B.row=r;if(B.tag){B.tagel=mk('span','tag',v,B.tag)}
+  const pth=document.createElementNS('http://www.w3.org/2000/svg','path');pth.setAttribute('fill','none');pth.setAttribute('stroke',B.c==='red'?'#FF3B30':B.c==='amber'?'#FFB020':'#D4FF3A');pth.setAttribute('stroke-width','2.5');$('links').appendChild(pth);B.p=pth;
+  const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');dot.setAttribute('r','6');dot.setAttribute('fill',pth.getAttribute('stroke'));$('links').appendChild(dot);B.dot=dot;
+});
+const NEWNAME='STAT_Riverbend_Surgical_Center_MARCUS_TESTPATIENT_20260916_01A182d7.pdf';
+
+// ---------- build E ----------
+const LANES=[['RADIOLOGY','Work it here'],['LEGAL','Send to Legal, not processed'],['AKRON','Push to the Akron system'],['HVTI','Cardiac only: forward to HVTI'],['SPLIT_HVTI','Radiology here, cardiac to HVTI'],['NOT_IMAGING','Not a request: flag it']];
+const laneEls={};
+LANES.forEach(([n,d],i)=>{const l=mk('div','lane',$('lanes'));l.style.top=(330+i*124)+'px';const c=ROUTEC[n];
+  l.innerHTML=`<div class="glow" style="background:linear-gradient(90deg,${c}33,transparent 70%)"></div><div class="bar" style="background:${c}"></div><div class="nm" style="color:${c}">${n}</div><div class="ds">${d}</div><div class="ct">0</div>`;
+  laneEls[n]={l,y:330+i*124+56,ct:l.querySelector('.ct'),glow:l.querySelector('.glow'),i};});
+const r3=rng(5);const order=[...FAXES].sort(()=>r3()-.5);
+// make sure the interesting ones aren't all bunched
+const flyers=order.map((f,i)=>{const e=mk('div','thumb',$('fly'),`<img src="img/${f}.png">`);e.style.width='120px';e.style.height=120*792/612+'px';return{f,e,route:EXP[f].route,t:20.7+i*0.27,r:(r3()-.5)*14}});
+const stackEls=[];for(let i=0;i<6;i++){const e=mk('div','thumb',$('stack'),`<img src="img/${order[i]}.png">`);e.style.width='220px';e.style.height=220*792/612+'px';stackEls.push(e)}
+
+// ---------- build F ----------
+const wlRows=FAXES.map(f=>{const x=EXP[f];const tr=mk('tr','r',$('wlb'));const rc=ROUTEC[x.route];
+  const pr=x.priority||'';const prc=pr==='STAT'?'var(--red)':pr==='URGENT'?'var(--amber)':'';
+  const legal=x.route==='LEGAL';
+  tr.innerHTML=`<td style="color:var(--ink);font-weight:700">${legal?'<span style="color:var(--mute)">(sent to Legal)</span>':x.route==='NOT_IMAGING'?'<span style="color:var(--mute)">(not an imaging request)</span>':((x.patient||'—')+' '+(x.dob||'<span style="color:var(--amber)">??/??/????</span>'))}</td>
+  <td><span class="pill" style="color:${rc};border:1px solid ${rc}66">${x.route}</span></td>
+  <td>${pr?`<span class="pill" style="${prc?`background:${prc};color:#07080B`:'color:#9AA0AA'}">${pr}</span>`:''}</td>
+  <td style="color:${x.delivery==='UNKNOWN'?'var(--amber)':'#C9CCD3'}">${x.delivery||''}</td>
+  <td style="color:#9AA0AA">${x.send_to||''}</td><td style="color:#9AA0AA">${x.reports||''}</td>
+  <td>${x.review?'<span class="pill" style="background:var(--amber);color:#07080B">REVIEW</span>':'<span style="color:#3A3F4B">✓</span>'}</td>`;return tr});
+
+// ---------- render ----------
+const SC={A:[0,3.5],B:[3.5,6.5],C:[6.5,9.5],D:[9.5,19.5],E:[19.5,26.5],F:[26.5,32.5],G:[32.5,37.5],H:[37.5,43]};
+window.DURATION=43;
+function flash(t,hits){let f=0;for(const h of hits){if(t>=h)f=Math.max(f,.55*(1-P(t,h,h+.18)))}$('flash').style.opacity=f}
+
+window.render=function(t){
+  for(const k in SC){show(k,t>=SC[k][0]&&t<SC[k][1])}
+  $('bggrid').style.transform=`translate(${-(t*18)%80}px,${-(t*10)%80}px)`;
+  flash(t,[0,1.5,2.0,3.5,6.5,9.5,15.3,19.5,26.5,32.5,37.5,39.9].filter(h=>h<=t&&t<h+.2));
+
+  // ---- A
+  if(t<3.5){
+    const la=t;
+    Athumbs.forEach(o=>{o.e.style.transform=`translate(${o.x}px,${o.y+la*o.v}px) rotate(${o.r+la*3}deg)`;o.e.style.opacity=.16*P(la,o.d*.6,o.d*.6+.4)});
+    let cur=Awords[0];for(const w of Awords)if(t>=w.t)cur=w;
+    const lt=t-cur.t;const s=lerp(1.35,1,eo5(P(lt,0,.22)));
+    const el=$('Aword');el.textContent=cur.txt;el.style.fontSize=cur.size+'px';el.style.color=cur.col;
+    el.style.transform=`scale(${s*(1+lt*.03)})`;el.style.filter=`blur(${(1-P(lt,0,.12))*14}px)`;
+    $('Abg').style.background=cur.bg||'transparent';
+    $('Asub').textContent=cur.sub||'';$('Asub').style.opacity=cur.sub?P(lt,.15,.4):0;
+    if(cur.txt==='UNREAD.'){el.style.opacity=1-P(t,3.3,3.5)}else el.style.opacity=1;
+  }
+  // ---- B
+  if(t>=3.5&&t<6.5){
+    const lt=t-3.5;
+    Bpile.forEach((o,i)=>{const at=i*0.1;const x=P(lt,at,at+.25);o.e.style.opacity=x>0?(t<5.5?.5:.5*(1-P(t,5.5,5.7))):0;
+      o.e.style.transform=`translate(${o.x}px,${o.y-(1-eo(x))*300}px) rotate(${o.r+(1-eo(x))*20}deg) scale(${lerp(1.4,1,eo(x))})`;});
+    const showLine=t<5.5;$('Bline').style.display=showLine?'block':'none';
+    Bwords.forEach((w,i)=>{const x=P(lt,.1+i*.25,.1+i*.25+.18);const e=$('bw'+i);e.style.opacity=x;e.style.transform=`translateY(${(1-eo(x))*60}px)`;});
+    $('Bline').style.textShadow='0 10px 60px rgba(0,0,0,.9)';
+    const nb=$('Bnot');nb.style.display=t>=5.5?'flex':'none';
+    if(t>=5.5){const x=P(t,5.5,5.75);nb.textContent='Not anymore.';
+      const g=(t>6.25)?(Math.sin(t*170)*18):(Math.sin(t*90)*3*(1-x));
+      nb.style.transform=`scale(${lerp(1.25,1,eo5(x))}) translateX(${g}px)`;
+      nb.style.textShadow=`${-6-Math.abs(g)}px 0 0 rgba(255,59,48,.85), ${6+Math.abs(g)}px 0 0 rgba(58,215,255,.85)`;
+      nb.style.color=t>6.25?'var(--lime)':'var(--ink)';nb.style.opacity=1;}
+  }
+  // ---- C
+  if(t>=6.5&&t<9.5){
+    const lt=t-6.5;
+    $('Cfax').style.transform=`translateY(${(1-eo5(P(lt,0,.4)))*110}%)`;
+    $('Ctri').style.transform=`translateY(${(1-eo5(P(lt,.12,.52)))*110}%)`;
+    const m=P(lt,0,.35);$('Cmark').style.transform=`scale(${lerp(.4,1,back(m))}) rotate(${(1-eo(m))*-20}deg)`;$('Cmark').style.opacity=m>0?1:0;
+    $('Cscan').style.top=(20+((lt*1.1)%1)*160)+'px';
+    for(let i=0;i<4;i++){const x=P(lt,1+i*.5,1.2+i*.5);const e=$('ct'+i);e.style.opacity=x;e.style.transform=`scale(${lerp(1.6,1,eo5(x))})`;e.style.color=i===3?'var(--lime)':'var(--ink)'}
+    const out=P(lt,2.8,3);$('Clogo').parentElement.style.transform=`scale(${1+lt*.02+out*.4})`;$('Clogo').parentElement.style.opacity=1-out;
+  }
+  // ---- D
+  if(t>=9.5&&t<19.5){
+    const lt=t-9.5;const out=eio(P(t,19.0,19.5));
+    const inx=eo5(P(lt,0,.6));
+    $('faxwrap').style.transform=`perspective(1600px) translateX(${(1-inx)*-700-out*1400}px) rotateY(${lerp(25,6,inx)}deg) rotateZ(${lerp(-6,-1.5,inx)}deg)`;
+    $('Dcap').style.opacity=P(lt,.15,.45);$('Dcap').style.transform=`translateX(${(1-eo(P(lt,.15,.5)))*-40-out*600}px)`;
+    const sc=P(t,10.3,11.8);$('beam').style.top=(eio(sc)*FH)+'px';$('beam').style.opacity=(sc>0&&sc<1)?1:0;
+    $('beamtint').style.height=(eio(sc)*FH)+'px';$('beamtint').style.opacity=1-P(t,11.8,12.3);
+    const cin=eo5(P(lt,.5,1.1));$('card').style.transform=`translateX(${(1-cin)*500+out*1200}px)`;$('card').style.opacity=cin;
+    $('fname').style.transform=`translateX(${out*1200}px)`;
+    $('Dstatus').textContent=t<15.3?'● extracting':'● done';$('Dstatus').style.color=t<15.3?(Math.floor(t*4)%2?'var(--lime)':'#6f8a1c'):'var(--lime)';
+    const fr=$('faxwrap').getBoundingClientRect();
+    BOXES.forEach((B,i)=>{const x=P(t,B.t,B.t+.3);
+      B.h.style.opacity=x>0?1:0;B.h.style.transform=`scale(${lerp(1.3,1,eo5(x))})`;
+      type(B.val,B.v,P(t,B.t+.15,B.t+.5));B.val.style.visibility=t>B.t+.15?'visible':'hidden';
+      if(B.tagel)B.tagel.style.opacity=P(t,B.t+.5,B.t+.7);
+      B.row.style.opacity=.35+.65*P(t,B.t,B.t+.1);
+      // link path from box right edge to row left
+      const hb=B.h.getBoundingClientRect(),rr=B.row.getBoundingClientRect();
+      const x0=hb.right,y0=hb.top+hb.height/2,x1=rr.left-14,y1=rr.top+rr.height/2;
+      const d=`M${x0},${y0} C${x0+120},${y0} ${x1-120},${y1} ${x1},${y1}`;B.p.setAttribute('d',d);
+      const L=B.p.getTotalLength();const lx=P(t,B.t+.05,B.t+.4);const fade=1-P(t,B.t+.9,B.t+1.3);
+      B.p.style.strokeDasharray=L;B.p.style.strokeDashoffset=L*(1-eo(lx));B.p.style.opacity=(lx>0?fade:0)*(1-out);
+      const pt=B.p.getPointAtLength(L*eo(lx));B.dot.setAttribute('cx',pt.x);B.dot.setAttribute('cy',pt.y);B.dot.style.opacity=(lx>0&&lx<1)?1:0;
+      B.h.style.opacity=(x>0?1:0)*(t>15.3?.55:1);
+    });
+    const s=P(t,15.3,15.5);$('stamp').style.opacity=s>0?1:0;$('stamp').style.transform=`rotate(-8deg) scale(${lerp(2.6,1,eo5(s))})`;
+    const f=P(t,16.4,16.7);$('fname').style.opacity=f;
+    $('fold').style.textDecoration=t>16.8?'line-through':'none';
+    type($('fnew'),'→ '+NEWNAME,P(t,16.9,18.1));
+  }
+  // ---- E
+  if(t>=19.5&&t<26.5){
+    const lt=t-19.5;const out=eio(P(t,26.1,26.5));
+    $('Ecap').style.opacity=P(lt,0,.3)*(1-out);$('Ecap').style.transform=`translateY(${(1-eo(P(lt,0,.4)))*40}px)`;
+    const counts={};
+    Object.values(laneEls).forEach(L=>{const x=eo5(P(lt,.25+L.i*.08,.7+L.i*.08));L.l.style.transform=`translateX(${(1-x)*1000+out*1200}px)`;L.l.style.opacity=x;counts[L.l.querySelector('.nm').textContent]=0;L.hit=-9});
+    const remaining=flyers.filter(f=>t<f.t).length;
+    stackEls.forEach((e,i)=>{const vis=i<Math.min(6,remaining);const x=eo5(P(lt,.3,.8));e.style.opacity=vis?x:0;e.style.transform=`translate(${220+i*6-(1-x)*500-out*800}px,${420-i*6}px) rotate(${-6+i*2.2}deg)`});
+    flyers.forEach(F=>{const L=laneEls[F.route];const x=P(t,F.t,F.t+.42);
+      if(t>=F.t+.42){counts[F.route]++;L.hit=Math.max(L.hit,F.t+.42)}
+      if(x<=0||x>=1){F.e.style.opacity=0;return}
+      const e=eio(x);const sx=280,sy=560,ex=880+300,ey=L.y-78;
+      const px=lerp(sx,ex,e),py=lerp(sy,ey,e)-Math.sin(Math.PI*e)*160;
+      F.e.style.opacity=1-P(x,.85,1);F.e.style.transform=`translate(${px}px,${py}px) rotate(${F.r+e*30}deg) scale(${lerp(1,.35,e)})`;});
+    Object.entries(laneEls).forEach(([n,L])=>{L.ct.textContent=counts[n];const h=1-P(t,L.hit,L.hit+.45);L.glow.style.opacity=L.hit>0?h:0;L.ct.style.transform=`scale(${1+.35*(L.hit>0?h*h:0)})`;L.ct.style.color=counts[n]?ROUTEC[n]:'#3A3F4B'});
+  }
+  // ---- F
+  if(t>=26.5&&t<32.5){
+    const lt=t-26.5;const out=eio(P(t,32.1,32.5));
+    $('Fcap').style.opacity=P(lt,0,.3);
+    $('wl').style.opacity=1-out;
+    document.querySelector('#wl thead').style.opacity=P(lt,.2,.5);
+    wlRows.forEach((r,i)=>{const x=P(lt,.4+i*.1,.65+i*.1);r.style.opacity=x;r.style.transform=`translateX(${(1-eo5(x))*120}px)`;r.style.background=(x>0&&x<1)?'rgba(212,255,58,.08)':'transparent'});
+    const tb=$('wl').getBoundingClientRect();const th=[...document.querySelectorAll('#wl th')];
+    const c0=th[0].getBoundingClientRect(),c6=th[6].getBoundingClientRect();
+    const h1=P(t,29.3,29.6),h2=P(t,30.5,30.8);
+    Object.assign($('hl1').style,{left:c0.left-6+'px',top:c0.top-12+'px',width:c0.width+12+'px',height:(tb.bottom-c0.top+18)+'px',opacity:h1*(1-P(t,30.4,30.6))*(1-out),transform:`scale(${lerp(1.08,1,eo5(h1))})`});
+    Object.assign($('hl2').style,{left:c6.left-6+'px',top:c6.top-12+'px',width:c6.width+12+'px',height:(tb.bottom-c6.top+18)+'px',opacity:h2*(1-out),transform:`scale(${lerp(1.08,1,eo5(h2))})`});
+    const co1=P(t,29.45,29.75);Object.assign($('co1').style,{left:c0.left+120+'px',top:'140px',opacity:co1*(1-P(t,30.4,30.6)),transform:`translateY(${(1-eo5(co1))*30}px) rotate(-2deg)`});
+    $('co1').style.left='1040px';
+    const co2=P(t,30.65,30.95);Object.assign($('co2').style,{left:'1150px',top:'140px',opacity:co2*(1-out),transform:`translateY(${(1-eo5(co2))*30}px) rotate(-2deg)`});
+    $('Fcap').style.opacity=P(lt,0,.3)*(1-out);
+  }
+  // ---- G
+  if(t>=32.5&&t<37.5){
+    const out=eio(P(t,37.1,37.5));
+    ['s1','s2','s3'].forEach((id,i)=>{const x=P(t,32.6+i*.5,32.95+i*.5);const e=$(id);e.style.opacity=x*(1-out);e.style.transform=`translateY(${(1-eo5(x))*120-out*80}px)`;
+      e.querySelector('.rule').style.transform=`scaleX(${eo5(P(t,32.6+i*.5,33.2+i*.5))})`;e.querySelector('.rule').style.transformOrigin='left';
+      e.querySelector('.n').style.transform=`scale(${1+.02*(t-32.6)})`;e.querySelector('.n').style.transformOrigin='left bottom'});
+    const n1=Math.round(lerp(60,15,eo(P(t,32.6,33.3))));$('s1n').textContent='~'+n1+'s';
+  }
+  // ---- H
+  if(t>=37.5){
+    const lt=t-37.5;
+    const l1=P(lt,0,.25),l2=P(lt,.5,.75),out=P(t,39.7,39.9);
+    $('Hlines').style.opacity=1-out;
+    $('H1').style.opacity=l1;$('H1').style.transform=`translateY(${(1-eo5(l1))*80}px)`;
+    $('H2').style.opacity=l2;$('H2').style.transform=`translateY(${(1-eo5(l2))*80}px) scale(${1+lt*.01})`;
+    const lg=P(t,39.9,40.4);$('Hlogo').style.opacity=lg*(1-P(t,42.3,43));$('Hlogo').style.transform=`scale(${lerp(1.15,1,eo5(lg))+ (t-39.9)*.01})`;
+    $('Hscan').style.top=(10+((lt*1.1)%1)*105)+'px';
+  }
+};
+window.ready=Promise.all([document.fonts.ready,...[...document.images].map(i=>i.complete?1:new Promise(r=>{i.onload=r;i.onerror=r}))]);
+</script></body></html>
