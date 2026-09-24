@@ -4,6 +4,8 @@ Reads incoming fax PDFs (imaging records requests), pulls out who sent it, which
 
 **Demo only. Fake data only.** Never put a real fax through this outside a signed HIPAA/BAA agreement.
 
+![Fax Triage: a handwritten STAT fax is scanned and its fields extracted](.github/preview.gif)
+
 ## Run
 
 ```bash
