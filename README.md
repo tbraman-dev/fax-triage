@@ -4,9 +4,7 @@ Reads incoming fax PDFs (imaging records requests), pulls out who sent it, which
 
 **Demo only. Fake data only.** Never put a real fax through this outside a signed HIPAA/BAA agreement.
 
-[![Fax Triage promo: a handwritten STAT fax is scanned and its fields extracted](promo/preview.gif)](promo/fax-triage-promo.mp4)
-
-[Watch the 43-second promo video](promo/fax-triage-promo.mp4) (with sound). Rebuild it with `promo/build.sh`.
+![Fax Triage: a handwritten STAT fax is scanned and its fields extracted](.github/preview.gif)
 
 ## Run
 
